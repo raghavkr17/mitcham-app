@@ -2,7 +2,7 @@
 
 This turns the GitHub Pages site from the in-browser mock demo into the
 real thing: a live Postgres database, a real Express API, and real "Sign
-in with Google" accounts. Everything below is free.
+in with Google" accounts.
 
 Three pieces, in this order: **database → API → frontend**.
 
@@ -15,12 +15,11 @@ Three pieces, in this order: **database → API → frontend**.
    string**, tab **URI**, and copy it. It looks like:
    `postgresql://postgres.xxxx:[YOUR-PASSWORD]@aws-0-xxxx.pooler.supabase.com:6543/postgres`
    — use the **pooler** connection string (port 6543), not the direct one, since
-   Render's free tier opens/closes connections a lot.
+   it handles frequent open/close connections better.
 3. Paste your DB password in where it says `[YOUR-PASSWORD]`. This full
    string is your `DATABASE_URL`.
-4. Free-tier note: a Supabase project **pauses after 7 days with no
-   activity** — the dashboard has a one-click "Restore" button if that
-   happens. It doesn't expire or delete data.
+4. Note: an inactive Supabase project can pause itself — the dashboard has
+   a one-click "Restore" button if that happens. It doesn't delete data.
 
 ## 2. Google OAuth client
 
@@ -53,15 +52,15 @@ Three pieces, in this order: **database → API → frontend**.
      origin — no trailing slash or path)
    - `JWT_SECRET` / `SESSION_SECRET` — Render can auto-generate these
      (blueprint already sets `generateValue: true`); leave as-is
-   - `PLATFORM_ADMIN_EMAILS` — already defaults to `contactraghavkr@gmail.com`
-     in the blueprint; edit if you want a different or additional address
+   - `PLATFORM_ADMIN_EMAILS` — the email(s) that should become
+     `platform_admin` on first sign-in (comma-separated for more than one).
+     Not stored in the repo — you type it in here.
 4. Deploy. First build takes a couple minutes. Note the resulting URL,
    e.g. `https://mitcham-api.onrender.com`.
 5. Go back to the Google Cloud Console (step 2) and fix the redirect URI
    to match this exact URL if it differs from your guess.
-6. Free-tier note: the service **spins down after 15 minutes idle** and
-   takes about a minute to wake back up on the next request — normal for
-   a demo, upgrade to the $7/mo instance later if that's annoying.
+6. Note: an idle service may spin down and take a moment to wake back up
+   on the next request — normal behavior, not an error.
 
 ### Run the schema + seed data
 
@@ -71,13 +70,13 @@ easiest from your own machine:
 ```bash
 cd server
 DATABASE_URL="<the same Supabase pooler URL>" \
-PLATFORM_ADMIN_EMAILS="contactraghavkr@gmail.com" \
+PLATFORM_ADMIN_EMAILS="<your admin email>" \
 npm install && npm run seed
 ```
 
 This creates the schema, seeds the demo vendors/listings (the example
-profiles), and ensures `contactraghavkr@gmail.com` exists as a
-`platform_admin`. It's idempotent — safe to re-run any time.
+profiles), and ensures your admin email exists as a `platform_admin`. It's
+idempotent — safe to re-run any time.
 
 ## 4. Frontend — GitHub Pages
 
@@ -98,23 +97,12 @@ persona picker.
 
 ## 5. Verify
 
-1. Visit the live site, click **Sign in with Google**, sign in with
-   `contactraghavkr@gmail.com` (add it as a test user in step 2 if the
-   consent screen is still in Testing mode).
+1. Visit the live site, click **Sign in with Google**, sign in with the
+   email you set as `PLATFORM_ADMIN_EMAILS` (add it as a test user in step
+   2 if the consent screen is still in Testing mode).
 2. You should land back on the site signed in, with an **Admin** tab —
    confirming the `platform_admin` role took effect.
 3. Check `https://<your-render-url>/healthz` returns `{"ok":true,"db":"up"}`.
 4. Browse the marketplace — the four demo vendors from `seed.js` should
    be visible, plus "Anna's Corner Bakery" waiting in the Admin queue as
    a pending application.
-
-## Everyday costs
-
-| Piece | Provider | Free tier limit |
-|---|---|---|
-| Database | Supabase | 500MB storage, pauses after 7 days idle (one-click resume) |
-| API | Render | 750 free instance-hours/mo, spins down after 15min idle (~1min cold start) |
-| Frontend | GitHub Pages | No practical limit for a site this size |
-
-Nothing here costs money unless you choose to upgrade Render off the free
-plan for an always-on API (~$7/mo, no cold starts).

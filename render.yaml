@@ -27,6 +27,6 @@ services:
       - key: FRONTEND_ORIGIN
         sync: false
       - key: PLATFORM_ADMIN_EMAILS
-        value: contactraghavkr@gmail.com
+        sync: false
       - key: NODE_ENV
         value: production
