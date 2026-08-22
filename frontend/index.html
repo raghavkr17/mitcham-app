@@ -44,7 +44,8 @@
   <!-- Toast container -->
   <div id="toastWrap" class="toast-wrap"></div>
 
-<script src="api.js"></script>
+<script src="config.js" onerror="console.info('No config.js — running as static demo (no backend configured).')"></script>
+  <script src="api.js"></script>
   <script src="mock-api.js"></script>
   <script src="app.js"></script>
   <script>
