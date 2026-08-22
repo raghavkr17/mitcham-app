@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitcham — Rescue great food before it's gone</title>
+  <meta name="description" content="Mitcham connects restaurants, bakeries, sweet shops, and grocers across India with people nearby, so today's unsold food gets eaten at a steep discount instead of thrown away." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top Navigation -->
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <div class="brand-mark">🥡</div>
+      <div>
+        <h1>Mitcham</h1>
+        <p class="brand-sub">Rescue great food, before it's gone.</p>
+      </div>
+    </a>
+    <nav class="nav-tabs" id="navTabs">
+      <a class="tab" href="#/" data-route="/">Nearby Bags</a>
+      <a class="tab" href="#/for-vendors" data-route="/for-vendors">For Vendors</a>
+      <a class="tab" href="#/my-reservations" data-route="/my-reservations">My Reservations</a>
+      <a class="tab hidden" href="#/manage" data-route="/manage" id="manageTab">Manage</a>
+      <a class="tab hidden" href="#/admin" data-route="/admin" id="adminTab">Admin</a>
+    </nav>
+    <div class="user-chip">
+      <span id="userName">Guest</span>
+      <button id="loginBtn" class="link-btn">Sign in with Google</button>
+    </div>
+  </header>
+
+  <main class="container" id="app">
+    <!-- Views are rendered here by app.js based on the URL hash. -->
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Mitcham — a surplus-food rescue marketplace for India.</span>
+      <span class="muted">Prices in ₹. Every bag rescued is food that didn't go to waste.</span>
+    </div>
+  </footer>
+
+  <!-- Toast container -->
+  <div id="toastWrap" class="toast-wrap"></div>
+
+<script src="api.js"></script>
+  <script src="mock-api.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Static-demo banner: only shows when no real backend is configured
+    // (i.e. mock-api.js is the one serving window.mitchamApi).
+    if (window.mitchamApi && window.mitchamApi.DEMO_MODE) {
+      const bar = document.createElement("div");
+      bar.setAttribute("style", "background:#1f7a4d;color:#fff;text-align:center;font-size:13px;padding:6px 12px;");
+      bar.innerHTML = 'Running as a static demo — no backend, data lives in your browser. <a href="#" id="demoResetLink" style="color:#fff;text-decoration:underline;">Reset demo data</a>';
+      document.body.prepend(bar);
+      bar.querySelector("#demoResetLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        if (confirm("Reset all demo data back to the seeded state? This clears anything you've added or changed.")) {
+          window.mitchamDemoReset();
+        }
+      });
+    }
+  </script>
+</body>
+</html>
