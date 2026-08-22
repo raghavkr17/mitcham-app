@@ -1,0 +1,32 @@
+# Render Blueprint for the Mitcham API.
+#
+# Usage: Render dashboard -> New -> Blueprint -> pick this repo. Render reads
+# this file and creates the service below. Env vars marked sync: false are
+# prompted for at creation time (secrets aren't stored in the repo) - see
+# docs/DEPLOY.md for exactly what to paste into each one.
+services:
+  - type: web
+    name: mitcham-api
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
+      - key: PLATFORM_ADMIN_EMAILS
+        value: contactraghavkr@gmail.com
+      - key: NODE_ENV
+        value: production
