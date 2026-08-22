@@ -1,0 +1,14 @@
+{
+  "name": "mitcham-e2e-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Playwright end-to-end smoke tests that drive the real running Mitcham app (see ../README.md and README.md in this folder for prerequisites).",
+  "scripts": {
+    "test": "node e2e/01_marketplace_and_storefront.test.js && node e2e/02_checkout_and_order_lifecycle.test.js && node e2e/03_onboarding_and_admin_approval.test.js"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2",
+    "playwright": "^1.47.0"
+  }
+}
