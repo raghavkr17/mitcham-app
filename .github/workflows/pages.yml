@@ -1,4 +1,4 @@
-name: Deploy static demo to GitHub Pages
+name: Deploy frontend to GitHub Pages
 
 on:
   push:
@@ -26,6 +26,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Points the deployed site at the real API instead of the mock
+      # persona-picker demo. Set the MITCHAM_API_BASE repo/environment
+      # variable (Settings -> Secrets and variables -> Actions -> Variables)
+      # to your deployed API's URL (e.g. https://mitcham-api.onrender.com).
+      # Left unset, the site falls back to the local mock demo.
+      - name: Write frontend/config.js
+        if: ${{ vars.MITCHAM_API_BASE != '' }}
+        run: echo "window.MITCHAM_API_BASE = \"${{ vars.MITCHAM_API_BASE }}\";" > frontend/config.js
 
       - name: Upload frontend/ as Pages artifact
         uses: actions/upload-pages-artifact@v3
