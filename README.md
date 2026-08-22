@@ -2,7 +2,7 @@
 
 **Rescue great food, before it's gone.**
 
-🔗 **Try it live:** https://raghavkr17.github.io/mitcham-app/#/ — no signup needed, just pick a demo persona and explore.
+🔗 **Try it live:** https://raghavkr17.github.io/mitcham-app/#/
 
 ## What it is
 
@@ -24,7 +24,7 @@ The live demo above is a self-contained version that runs entirely in your brows
 
 ## Running it for real
 
-Mitcham is a full-stack app (vanilla JS frontend, Node/Express + Postgres backend). Setup instructions, the API reference, and technical details live in [`docs/`](docs/) for anyone building on it or contributing.
+Mitcham is a full-stack app (vanilla JS frontend, Node/Express + Postgres backend). It falls back to the in-browser mock demo above only when no backend is configured — see [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full walkthrough (Supabase for Postgres, Render for the API, GitHub Pages for the frontend) to turn the live link into the real thing: real Google sign-in, a shared database, and an admin account.
 
 ## History
 
