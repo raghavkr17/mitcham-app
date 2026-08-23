@@ -16,15 +16,13 @@ See [`docs/PITCH.md`](docs/PITCH.md) for the full product pitch.
 
 ## Try it
 
-The live demo above is a self-contained version that runs entirely in your browser — no account needed. Click "Sign in with Google" and pick any persona to explore:
+The live link above is the real thing — a live Postgres database, a real Express API, and real "Sign in with Google" accounts. Click **Sign in with Google** to create an account, browse nearby vendors, and reserve a bag. Vendors can apply for their own storefront from **For Vendors**.
 
-- **Demo Customer** — browse the marketplace and reserve bags
-- **A vendor owner** — manage listings, restock bags, confirm pickups
-- **Platform Admin** — approve or reject new vendors
+If no backend is configured, the app automatically falls back to a self-contained in-browser mock demo (no account needed, persona picker instead of real sign-in) — useful for exploring the UI without standing up any infrastructure.
 
-## Running it for real
+## Running your own instance
 
-Mitcham is a full-stack app (vanilla JS frontend, Node/Express + Postgres backend). It falls back to the in-browser mock demo above only when no backend is configured — see [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full walkthrough (Supabase for Postgres, Render for the API, GitHub Pages for the frontend) to turn the live link into the real thing: real Google sign-in, a shared database, and an admin account.
+Mitcham is a full-stack app (vanilla JS frontend, Node/Express + Postgres backend, Google OAuth for accounts). See [`docs/DEPLOY.md`](docs/DEPLOY.md) for the full walkthrough (Supabase for Postgres, Render for the API, GitHub Pages for the frontend) to stand up your own copy with a real database, real sign-in, and your own admin account.
 
 ## History
 
