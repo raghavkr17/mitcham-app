@@ -332,7 +332,7 @@ code { background: var(--bg-soft); padding: 1px 6px; border-radius: 4px; font-si
 
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
-  .hero, .order-layout { grid-template-columns: 1fr; }
+    .hero, .order-layout { grid-template-columns: 1fr; }
   .topbar { padding: 12px; }
   .nav-tabs { order: 3; width: 100%; overflow-x: auto; }
   .tab { white-space: nowrap; }
