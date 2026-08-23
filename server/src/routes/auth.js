@@ -15,15 +15,22 @@ router.get(
 
 // OAuth callback: passport populates req.user, we sign a JWT and redirect
 // back to the SPA with the token in the query string.
+// FRONTEND_ORIGIN must be a bare origin (no path) for CORS to match it.
+// The deployed SPA can live at a sub-path (e.g. GitHub Project Pages at
+// /<repo>/), so the OAuth redirect target is configurable separately via
+// FRONTEND_APP_URL and falls back to FRONTEND_ORIGIN for local dev where
+// the app is served from the origin root.
+const FRONTEND_APP_URL = process.env.FRONTEND_APP_URL || process.env.FRONTEND_ORIGIN;
+
 router.get(
   "/google/callback",
   passport.authenticate("google", {
     session: false,
-    failureRedirect: `${process.env.FRONTEND_ORIGIN}/?auth_error=1`,
+    failureRedirect: `${FRONTEND_APP_URL}/?auth_error=1`,
   }),
   (req, res) => {
     const token = signJwt(req.user);
-    res.redirect(`${process.env.FRONTEND_ORIGIN}/?token=${encodeURIComponent(token)}`);
+    res.redirect(`${FRONTEND_APP_URL}/?token=${encodeURIComponent(token)}`);
   }
 );
 
