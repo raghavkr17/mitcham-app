@@ -213,7 +213,7 @@ vendorReservationsRouter.post("/:pickupCode/mark-ready", requireAuth, requireVen
 vendorReservationsRouter.post("/:pickupCode/confirm-pickup", requireAuth, requireVendorAccess, async (req, res) => {
   try {
     const r = await pool.query(
-      "UPDATE reservations SET status = 'picked_up' WHERE pickup_code = $1 AND vendor_id = $2 AND status = 'reserved' RETURNING *",
+      "UPDATE reservations SET status = 'picked_up' WHERE pickup_code = $1 AND vendor_id = $2 AND status IN ('reserved', 'ready') RETURNING *",
       [req.params.pickupCode, req.vendor.id]
     );
     if (r.rows.length === 0) return res.status(404).json({ error: "not_found_or_not_reserved" });
