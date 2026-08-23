@@ -34,65 +34,14 @@
     const now = Date.now();
     const users = [
       { id: 1, email: "admin@mitcham.local", displayName: "Mitcham Admin", role: "platform_admin" },
-      { id: 2, email: "spiceroute@mitcham.local", displayName: "Spice Route Kitchen", role: "vendor" },
-      { id: 3, email: "annapurnasweets@mitcham.local", displayName: "Annapurna Sweets & Snacks", role: "vendor" },
-      { id: 4, email: "dailygrocers@mitcham.local", displayName: "Daily Grocers", role: "vendor" },
-      { id: 5, email: "flourpower@mitcham.local", displayName: "Flour Power Bakery", role: "vendor" },
-      { id: 6, email: "annascorner@mitcham.local", displayName: "Anna's Corner Bakery", role: "vendor" },
       { id: 7, email: "demo-customer@mitcham.local", displayName: "Demo Customer", role: "customer" },
     ];
 
-    const vendorSpecs = [
-      {
-        id: 1, ownerId: 2, slug: "spice-route-kitchen", name: "Spice Route Kitchen", category: "Restaurant",
-        city: "Bengaluru", tagline: "Today's thalis, rescued at closing time.",
-        description: "A neighborhood multi-cuisine kitchen saving its unsold dinner thalis instead of binning them every night.",
-        emoji: "🍛", themeColor: "#c0392b", status: "approved",
-        listings: [
-          { name: "Surprise Veg Thali", originalPrice: 220, discountPrice: 79, emoji: "🍛", desc: "Chef's pick of today's unsold veg thali — rice, 2 sabzi, dal, roti", pickupStart: "21:00", pickupEnd: "22:00", bags: 8 },
-          { name: "Surprise Non-Veg Thali", originalPrice: 280, discountPrice: 99, emoji: "🍗", desc: "Today's unsold non-veg thali, chef's choice of curry", pickupStart: "21:00", pickupEnd: "22:00", bags: 5 },
-        ],
-      },
-      {
-        id: 2, ownerId: 3, slug: "annapurna-sweets", name: "Annapurna Sweets & Snacks", category: "Sweet Shop",
-        city: "Mumbai", tagline: "Today's mithai and namkeen, before they're gone.",
-        description: "A family-run sweet shop that makes fresh mithai daily and rescues whatever's left at closing.",
-        emoji: "🍬", themeColor: "#e0a106", status: "approved",
-        listings: [
-          { name: "Mithai Rescue Box", originalPrice: 300, discountPrice: 99, emoji: "🍬", desc: "Assorted mithai made today — kaju katli, barfi, ladoo, chef's mix", pickupStart: "20:30", pickupEnd: "21:30", bags: 10 },
-          { name: "Namkeen Surplus Pack", originalPrice: 150, discountPrice: 49, emoji: "🥨", desc: "Today's fresh namkeen, assorted", pickupStart: "20:30", pickupEnd: "21:30", bags: 12 },
-        ],
-      },
-      {
-        id: 3, ownerId: 4, slug: "daily-grocers", name: "Daily Grocers", category: "Grocery",
-        city: "Delhi", tagline: "Produce and bakery items near their sell-by date, half price.",
-        description: "A neighborhood grocer bundling produce and bakery items close to their sell-by date instead of discarding them.",
-        emoji: "🥬", themeColor: "#2f7d3a", status: "approved",
-        listings: [
-          { name: "Fruit & Veg Rescue Box", originalPrice: 350, discountPrice: 129, emoji: "🥕", desc: "5–6kg mixed produce nearing its sell-by date — still good, just not shelf-perfect", pickupStart: "19:30", pickupEnd: "20:30", bags: 6 },
-          { name: "Bakery Shelf Box", originalPrice: 180, discountPrice: 59, emoji: "🍞", desc: "Bread, buns, and pastries from today that won't be fresh tomorrow", pickupStart: "19:30", pickupEnd: "20:30", bags: 9 },
-        ],
-      },
-      {
-        id: 4, ownerId: 5, slug: "flour-power-bakery", name: "Flour Power Bakery", category: "Bakery",
-        city: "Pune", tagline: "Fresh-baked today, rescued tonight.",
-        description: "Artisan bakery — croissants, sourdough, and pastries baked fresh every morning, discounted at close.",
-        emoji: "🥐", themeColor: "#a5682c", status: "approved",
-        listings: [
-          { name: "Pastry Surprise Bag", originalPrice: 250, discountPrice: 89, emoji: "🥐", desc: "Assorted pastries and croissants from today's bake", pickupStart: "20:00", pickupEnd: "21:00", bags: 7 },
-          { name: "Sourdough Loaf (Day-Old)", originalPrice: 180, discountPrice: 69, emoji: "🍞", desc: "One day past bake — still excellent for toast", pickupStart: "20:00", pickupEnd: "21:00", bags: 5 },
-        ],
-      },
-      {
-        id: 5, ownerId: 6, slug: "annas-corner-bakery", name: "Anna's Corner Bakery", category: "Bakery",
-        city: "Chennai", tagline: "A small home bakery applying to join Mitcham.",
-        description: "One-person home bakery in Chennai, applying to list its unsold evening stock.",
-        emoji: "🧁", themeColor: "#8e44ad", status: "pending",
-        listings: [
-          { name: "Cupcake Surprise Box", originalPrice: 200, discountPrice: 79, emoji: "🧁", desc: "Assorted cupcakes from today's batch", pickupStart: "20:00", pickupEnd: "21:00", bags: 6 },
-        ],
-      },
-    ];
+    // Note: the placeholder vendors that used to live here (Spice Route Kitchen,
+    // Annapurna Sweets, Daily Grocers, Flour Power Bakery, Anna's Corner Bakery)
+    // were only ever tied to fake @mitcham.local owner accounts, not real users —
+    // removed so a fresh install starts empty and only shows vendors real people apply with.
+    const vendorSpecs = [];
 
     const vendors = [];
     const vendorStaff = [];
@@ -131,10 +80,38 @@
     };
   }
 
+  // Old placeholder vendor accounts (owner ids 2–6) were seeded with fake
+  // @mitcham.local addresses just to demo the marketplace — never real vendors.
+  // Anyone who already has one of these in localStorage from before gets it
+  // cleaned up here, once, without touching their real data or order history.
+  const FAKE_SEED_OWNER_IDS = [2, 3, 4, 5, 6];
+  function scrubFakeSeedVendors(d) {
+    const fakeVendors = d.vendors.filter((v) => FAKE_SEED_OWNER_IDS.includes(Number(v.ownerId)));
+    if (fakeVendors.length === 0) return d;
+    const fakeVendorIds = new Set(fakeVendors.map((v) => v.id));
+    // preserve order history: bake the vendor's name/emoji onto its past
+    // reservations before the vendor row disappears.
+    d.reservations.forEach((r) => {
+      if (fakeVendorIds.has(r.vendorId) && !r.vendorName) {
+        const v = fakeVendors.find((x) => x.id === r.vendorId);
+        if (v) { r.vendorName = v.name; r.vendorEmoji = v.emoji; }
+      }
+    });
+    d.vendors = d.vendors.filter((v) => !fakeVendorIds.has(v.id));
+    d.listings = d.listings.filter((l) => !fakeVendorIds.has(l.vendorId));
+    d.vendorStaff = d.vendorStaff.filter((s) => !fakeVendorIds.has(s.vendorId));
+    d.users = d.users.filter((u) => !FAKE_SEED_OWNER_IDS.includes(Number(u.id)));
+    return d;
+  }
+
   function loadDb() {
     try {
       const raw = localStorage.getItem(DB_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed = scrubFakeSeedVendors(JSON.parse(raw));
+        persist(parsed);
+        return parsed;
+      }
     } catch { /* fall through to reseed */ }
     const fresh = buildSeed();
     persist(fresh);
@@ -211,6 +188,7 @@
       total: r.totalPaise / 100, totalPaise: r.totalPaise,
       savings: r.savingsPaise / 100, savingsPaise: r.savingsPaise,
       status: r.status, placedAt: r.placedAt, userId: r.userId,
+      vendorName: r.vendorName, vendorEmoji: r.vendorEmoji,
     };
   }
 
@@ -352,7 +330,25 @@
     async listAllVendors() {
       const u = requireAuth();
       if (u.role !== "platform_admin") throw apiErr(403, "forbidden");
-      return [...db.vendors].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(serializeVendor);
+      return [...db.vendors].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((v) => {
+        const owner = db.users.find((x) => Number(x.id) === Number(v.ownerId));
+        return { ...serializeVendor(v), ownerEmail: owner?.email || null };
+      });
+    },
+    async deleteVendor(id) {
+      const u = requireAuth();
+      if (u.role !== "platform_admin") throw apiErr(403, "forbidden");
+      const v = findVendor(id);
+      if (!v) throw apiErr(404, "not_found");
+      // keep order history readable after the vendor row is gone
+      db.reservations.forEach((r) => {
+        if (r.vendorId === v.id && !r.vendorName) { r.vendorName = v.name; r.vendorEmoji = v.emoji; }
+      });
+      db.listings = db.listings.filter((l) => l.vendorId !== v.id);
+      db.vendorStaff = db.vendorStaff.filter((s) => s.vendorId !== v.id);
+      db.vendors = db.vendors.filter((x) => x.id !== v.id);
+      save();
+      return { ok: true };
     },
     async approveVendor(id) {
       const u = requireAuth();
@@ -521,6 +517,7 @@
       db.reservations.push({
         pickupCode, vendorId: vendor.id, userId: u.id, customer: custName,
         totalPaise, savingsPaise, status: "reserved", placedAt: new Date().toISOString(),
+        vendorName: vendor.name, vendorEmoji: vendor.emoji,
       });
       for (const { listingId, qty } of merged_) {
         db.reservationItems.push({ pickupCode, listingId, quantity: qty });
@@ -528,10 +525,19 @@
       save();
       return { pickupCode, total: totalPaise / 100, savings: savingsPaise / 100, vendorId: vendor.id };
     },
-    async confirmPickup(vendorId, pickupCode) {
+    async markReservationReady(vendorId, pickupCode) {
       const u = requireAuth();
       const vendor = requireVendorAccess(vendorId, u);
       const r = db.reservations.find((x) => x.pickupCode === pickupCode && x.vendorId === vendor.id && x.status === "reserved");
+      if (!r) throw apiErr(404, "not_found_or_not_reserved");
+      r.status = "ready";
+      save();
+      return serializeReservation(r);
+    },
+    async confirmPickup(vendorId, pickupCode) {
+      const u = requireAuth();
+      const vendor = requireVendorAccess(vendorId, u);
+      const r = db.reservations.find((x) => x.pickupCode === pickupCode && x.vendorId === vendor.id && (x.status === "reserved" || x.status === "ready"));
       if (!r) throw apiErr(404, "not_found_or_not_reserved");
       r.status = "picked_up";
       save();
@@ -547,7 +553,9 @@
           const vendor = findVendor(r.vendorId);
           return {
             ...serializeReservation(r),
-            vendorName: vendor?.name, vendorSlug: vendor?.slug, vendorEmoji: vendor?.emoji,
+            vendorName: r.vendorName || vendor?.name || "Removed vendor",
+            vendorSlug: vendor?.slug || null,
+            vendorEmoji: r.vendorEmoji || vendor?.emoji || "🥡",
           };
         });
     },
@@ -573,7 +581,7 @@
       const r = db.reservations.find((x) => x.pickupCode === pickupCode);
       if (!r) throw apiErr(404, "not_found");
       if (!canAccessReservation(u, r)) throw apiErr(403, "forbidden");
-      if (r.status !== "reserved") throw apiErr(409, "not_cancellable");
+      if (r.status !== "reserved" && r.status !== "ready") throw apiErr(409, "not_cancellable");
       const items = db.reservationItems.filter((i) => i.pickupCode === pickupCode);
       for (const it of items) db.bags[it.listingId] = currentBags(it.listingId) + it.quantity;
       r.status = "cancelled";
@@ -584,13 +592,8 @@
 
   // ---------- persona picker (stands in for the Google OAuth redirect) ----------
   const PERSONAS = [
-    { userId: 7, label: "Demo Customer", hint: "Browse the marketplace and reserve bags" },
-    { userId: 2, label: "Spice Route Kitchen — owner", hint: "Manage listings, restock, confirm pickups" },
-    { userId: 3, label: "Annapurna Sweets & Snacks — owner", hint: "Manage listings, restock, confirm pickups" },
-    { userId: 4, label: "Daily Grocers — owner", hint: "Manage listings, restock, confirm pickups" },
-    { userId: 5, label: "Flour Power Bakery — owner", hint: "Manage listings, restock, confirm pickups" },
-    { userId: 6, label: "Anna's Corner Bakery — owner", hint: "A pending vendor awaiting approval" },
-    { userId: 1, label: "Platform Admin", hint: "Approve, reject, or suspend vendors" },
+    { userId: 7, label: "Demo Customer", hint: "Browse the marketplace, list a business, reserve bags" },
+    { userId: 1, label: "Platform Admin", hint: "Approve, reject, suspend, or delete vendors" },
   ];
 
   function openPersonaPicker() {
