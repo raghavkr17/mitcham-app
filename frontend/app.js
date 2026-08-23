@@ -1021,3 +1021,4 @@ async function renderAdmin(app) {
 
 // ===== Initial boot =====
 boot();
+
