@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS reservations (
   total_paise   INT NOT NULL CHECK (total_paise >= 0),
   savings_paise INT NOT NULL DEFAULT 0 CHECK (savings_paise >= 0),
   status        TEXT NOT NULL DEFAULT 'reserved'
-                  CHECK (status IN ('reserved', 'picked_up', 'cancelled')),
+                  CHECK (status IN ('reserved', 'ready', 'picked_up', 'cancelled')),
   placed_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
