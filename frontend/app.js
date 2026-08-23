@@ -704,7 +704,7 @@ async function renderMyReservations(app) {
       } else {
         tbody.innerHTML = reservations.map((o) => `
           <tr>
-            <td><a href="#/v/${o.vendorSlug}">${o.vendorEmoji} ${esc(o.vendorName)}</a></td>
+            <td>${o.vendorSlug ? `<a href="#/v/${o.vendorSlug}">${o.vendorEmoji} ${esc(o.vendorName)}</a>` : `${o.vendorEmoji} ${esc(o.vendorName)}`}</td>
             <td class="barcode-cell">${o.pickupCode}</td>
             <td><span class="status-pill status-${o.status}">${o.status.replace("_", " ")}</span></td>
             <td>${new Date(o.placedAt).toLocaleString()}</td>
@@ -780,11 +780,12 @@ function renderManageList(app) {
 async function renderManageDetail(app, id) {
   if (!state.user) { app.innerHTML = `<div class="empty-state"><h3>Sign in required</h3></div>`; return; }
 
-  let listings, vendor, reservations;
+  let listings, vendor, reservations, fullVendor;
   try {
     listings = await window.mitchamApi.getFullListings(id);
     vendor = (state.user.vendors || []).find((v) => String(v.id) === String(id));
     reservations = await window.mitchamApi.getVendorReservations(id);
+    fullVendor = vendor?.slug ? await window.mitchamApi.getVendorBySlug(vendor.slug) : null;
   } catch (err) {
     app.innerHTML = `<div class="empty-state"><h3>Can't manage this vendor</h3><p class="muted">${esc(err.message)}</p></div>`;
     return;
@@ -799,6 +800,16 @@ async function renderManageDetail(app, id) {
   app.innerHTML = `
     <div class="breadcrumb"><a href="#/manage">Manage</a> / ${esc(vendor?.name || "Vendor")}</div>
     <h2 class="section-title">${esc(vendor?.name || "Vendor")} <span class="status-pill status-${vendor?.status}">${vendor?.status}</span></h2>
+
+    <details class="form-card" id="editVendorDetails" style="margin-bottom:16px;">
+      <summary style="cursor:pointer;font-weight:600;">✏️ Customize emoji &amp; details</summary>
+      <form id="editVendorForm" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <input name="emoji" value="${esc(fullVendor?.emoji || vendor?.emoji || "")}" maxlength="4" placeholder="🥡" style="flex:0 0 64px;" />
+        <input name="name" value="${esc(fullVendor?.name || vendor?.name || "")}" placeholder="Business name" style="flex:2;" />
+        <input name="tagline" value="${esc(fullVendor?.tagline || "")}" placeholder="Tagline" style="flex:2;" />
+        <button class="btn primary" type="submit">Save</button>
+      </form>
+    </details>
 
     <div class="kpi-grid">
       <div class="kpi"><div class="kpi-label">Revenue</div><div class="kpi-value">${fmtMoney(revenue)}</div></div>
@@ -834,13 +845,30 @@ async function renderManageDetail(app, id) {
                 <td><span class="status-pill status-${o.status}">${o.status.replace("_", " ")}</span></td>
                 <td>${new Date(o.placedAt).toLocaleString()}</td>
                 <td class="total-cell">${fmtMoney(o.total)}</td>
-                <td>${o.status === "reserved" ? `<button class="btn ghost confirm-pickup-btn">Confirm pickup</button>` : ""}</td>
+                <td>
+                  ${o.status === "reserved" ? `<button class="btn ghost mark-ready-btn">Mark ready</button>` : ""}
+                  ${o.status === "reserved" || o.status === "ready" ? `<button class="btn ghost confirm-pickup-btn">Confirm pickup</button>` : ""}
+                </td>
               </tr>
             `).join("")}
         </tbody>
       </table>
     </div>
   `;
+
+  $$(".mark-ready-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const row = btn.closest("tr");
+      const code = row.dataset.code;
+      try {
+        await window.mitchamApi.markReservationReady(id, code);
+        toast(`${code} marked ready for pickup`, "success");
+        renderManageDetail(app, id);
+      } catch (err) {
+        toast(err.message, "danger");
+      }
+    });
+  });
 
   $$(".confirm-pickup-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -855,6 +883,27 @@ async function renderManageDetail(app, id) {
       }
     });
   });
+
+  const editVendorForm = $("#editVendorForm");
+  if (editVendorForm) {
+    editVendorForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const payload = {
+        emoji: (fd.get("emoji") || "").trim(),
+        name: (fd.get("name") || "").trim(),
+        tagline: (fd.get("tagline") || "").trim(),
+      };
+      try {
+        await window.mitchamApi.updateVendor(id, payload);
+        state.user = await window.mitchamApi.fetchMe();
+        toast("Vendor details updated", "success");
+        renderManageDetail(app, id);
+      } catch (err) {
+        toast(err.message, "danger");
+      }
+    });
+  }
 
   function paintMenu() {
     const grid = $("#manageMenuGrid");
@@ -972,7 +1021,7 @@ async function renderAdmin(app) {
     <h2 class="section-title">All Vendors</h2>
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th>Name</th><th>Category</th><th>City</th><th>Status</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Name</th><th>Category</th><th>City</th><th>Owner email</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="allBody"></tbody>
       </table>
     </div>
@@ -1009,16 +1058,24 @@ async function renderAdmin(app) {
       <td><a href="#/v/${v.slug}">${v.emoji} ${esc(v.name)}</a></td>
       <td>${esc(v.category)}</td>
       <td>${esc(v.city)}</td>
+      <td class="muted">${esc(v.ownerEmail || "—")}</td>
       <td><span class="status-pill status-${v.status}">${v.status}</span></td>
-      <td>${v.status === "approved" ? `<button class="btn ghost suspend-btn" data-id="${v.id}">Suspend</button>` : ""}</td>
+      <td>
+        ${v.status === "approved" ? `<button class="btn ghost suspend-btn" data-id="${v.id}">Suspend</button>` : ""}
+        <button class="btn danger delete-vendor-btn" data-id="${v.id}" data-name="${esc(v.name)}">Delete</button>
+      </td>
     </tr>
   `).join("");
   $$(".suspend-btn", allBody).forEach((b) => b.addEventListener("click", async () => {
     try { await window.mitchamApi.suspendVendor(b.dataset.id); toast("Suspended", "info"); renderAdmin(app); }
     catch (err) { toast(err.message, "danger"); }
   }));
+  $$(".delete-vendor-btn", allBody).forEach((b) => b.addEventListener("click", async () => {
+    if (!confirm(`Permanently delete "${b.dataset.name}"? This removes its listings but keeps past order history.`)) return;
+    try { await window.mitchamApi.deleteVendor(b.dataset.id); toast("Vendor deleted", "info"); renderAdmin(app); }
+    catch (err) { toast(err.message, "danger"); }
+  }));
 }
 
 // ===== Initial boot =====
 boot();
-
