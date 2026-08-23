@@ -12,4 +12,8 @@
    value, not app code. The GitHub Pages deploy workflow writes it
    from a repo variable at build time — see docs/DEPLOY.md.
    ========================================================= */
-window.MITCHAM_API_BASE = "https://your-api.example.com";
+// This static GitHub Pages demo has no working backend deployed, so leave
+// MITCHAM_API_BASE unset — mock-api.js then takes over and runs the app
+// entirely client-side (localStorage), which is what actually works here.
+// To point the app at a real backend later, uncomment the line below.
+window.MITCHAM_API_BASE = "https://mitcham-api.onrender.com";
