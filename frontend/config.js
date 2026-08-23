@@ -1,0 +1,1 @@
+window.MITCHAM_API_BASE = "https://mitcham-api.onrender.com";
