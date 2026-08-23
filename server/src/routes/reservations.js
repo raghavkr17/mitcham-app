@@ -193,7 +193,22 @@ vendorReservationsRouter.get("/", requireAuth, requireVendorAccess, async (req, 
     res.status(500).json({ error: "internal" });
   }
 });
-
+// Vendor confirms an order is ready.
+vendorReservationsRouter.post("/:pickupCode/mark-ready", requireAuth, requireVendorAccess, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `UPDATE reservations SET status = 'ready'
+       WHERE pickup_code = $1 AND vendor_id = $2 AND status = 'reserved'
+       RETURNING *`,
+      [req.params.pickupCode, req.vendor.id]
+    );
+    if (r.rows.length === 0) return res.status(404).json({ error: "not_found_or_not_reserved" });
+    res.json(serializeReservation(r.rows[0]));
+  } catch (err) {
+    console.error("[reservations] mark-ready error:", err);
+    res.status(500).json({ error: "internal" });
+  }
+});
 // Vendor confirms a customer collected their bag at the counter.
 vendorReservationsRouter.post("/:pickupCode/confirm-pickup", requireAuth, requireVendorAccess, async (req, res) => {
   try {

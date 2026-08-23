@@ -111,6 +111,7 @@
     approveVendor(id) { return apiFetch(`/api/vendors/${id}/approve`, { method: "POST", auth: true }); },
     rejectVendor(id) { return apiFetch(`/api/vendors/${id}/reject`, { method: "POST", auth: true }); },
     suspendVendor(id) { return apiFetch(`/api/vendors/${id}/suspend`, { method: "POST", auth: true }); },
+    deleteVendor(id) {return apiFetch(`/api/vendors/${id}`, { method: "DELETE", auth: true });},
 
     // --- Listings & bags (per vendor) ---
     getListings(vendorId) { return apiFetch(`/api/vendors/${vendorId}/listings`); },
@@ -142,6 +143,11 @@
     },
     confirmPickup(vendorId, pickupCode) {
       return apiFetch(`/api/vendors/${vendorId}/reservations/${encodeURIComponent(pickupCode)}/confirm-pickup`, {
+        method: "POST", auth: true,
+      });
+    },
+    markReservationReady(vendorId, pickupCode) {
+      return apiFetch(`/api/vendors/${vendorId}/reservations/${encodeURIComponent(pickupCode)}/mark-ready`, {
         method: "POST", auth: true,
       });
     },

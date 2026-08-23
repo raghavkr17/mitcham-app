@@ -250,4 +250,14 @@ router.post("/:vendorId/suspend", requireAuth, requirePlatformAdmin, async (req,
   }
 });
 
+router.delete("/:id", requireAuth, requirePlatformAdmin, async (req, res) => {
+  try {
+    await pool.query("DELETE FROM vendors WHERE id = $1", [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[vendors] delete error:", err);
+    res.status(500).json({ error: "internal" });
+  }
+});
+
 module.exports = router;
